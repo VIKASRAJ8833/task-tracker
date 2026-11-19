@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Task Tracker</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 3rem auto; padding: 0 1rem; background: #f9fafb; color: #111827; }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    form { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    input { flex: 1; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
+    button { padding: 0.6rem 1rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+    button:hover { background: #1d4ed8; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; justify-content: space-between; align-items: center; background: white; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 6px; border: 1px solid #e5e7eb; }
+    li.done span { text-decoration: line-through; color: #9ca3af; }
+    .delete-btn { background: #ef4444; padding: 0.3rem 0.6rem; font-size: 0.85rem; }
+    .delete-btn:hover { background: #dc2626; }
+  </style>
+</head>
+<body>
+  <h1>Task Tracker</h1>
+  <form id="task-form">
+    <input type="text" id="task-input" placeholder="Add a new task..." required />
+    <button type="submit">Add</button>
+  </form>
+  <ul id="task-list"></ul>
+
+  <script>
+    const form = document.getElementById('task-form');
+    const input = document.getElementById('task-input');
+    const list = document.getElementById('task-list');
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    function render() {
+      list.innerHTML = '';
+      tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        if (task.done) li.classList.add('done');
+
+        const span = document.createElement('span');
+        span.textContent = task.text;
+        span.style.cursor = 'pointer';
+        span.onclick = () => {
+          tasks[index].done = !tasks[index].done;
+          saveAndRender();
+        };
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.className = 'delete-btn';
+        delBtn.onclick = () => {
+          tasks.splice(index, 1);
+          saveAndRender();
+        };
+
+        li.append(span, delBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      render();
+    }
+
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      tasks.push({ text: input.value.trim(), done: false });
+      input.value = '';
+      saveAndRender();
+    };
+
+    render();
+  </script>
+</body>
+</html>
